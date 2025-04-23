@@ -18,16 +18,17 @@ public:
     }
 };
 
-void resizeRectangle(std::unique_ptr<Rectangle>& rect, double newLength, double newWidth) {
-    rect->resize(newLength, newWidth);
-    rect->print();
-}
+void resizeRectangle(std::unique_ptr<Rectangle> rect, double newLength, double newWidth) {  
+    rect->resize(newLength, newWidth);  
+    rect->print();  
+}  
 
-int main() {
-    std::unique_ptr<Rectangle> rectPtr(new Rectangle(10.0, 5.0));
-    rectPtr->print(); // In kích thước ban đầu
+int main() {  
+    std::unique_ptr<Rectangle> rectPtr(new Rectangle(10.0, 5.0));  
+    rectPtr->print(); // In kích thước ban đầu  
 
-    resizeRectangle(rectPtr, 20.0, 10.0); // Thay đổi kích thước
+    // Sử dụng std::move để chuyển quyền sở hữu  
+    resizeRectangle(std::move(rectPtr), 20.0, 10.0); // Thay đổi kích thước  
 
-    return 0; 
-}
+    return 0;   
+}  
