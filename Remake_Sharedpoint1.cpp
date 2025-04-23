@@ -1,3 +1,8 @@
+// Viết một chương trình đơn giản tạo ra hai lớp Customer và Order. 
+// Customer chứa thông tin về khách hàng và một shared_ptr đến Order. Order sẽ chứa một weak_ptr đến Customer. 
+// Code bằng C++, KHÔNG SỬ DỤNG "enable_shared_from_this"
+
+
 #include <iostream>
 #include <memory>
 #include <string>
@@ -57,8 +62,8 @@ private:
 
 int main() {
     // Tạo một đối tượng Customer và Order
-    std::shared_ptr<Customer> customer = std::make_shared<Customer>("John Doe");
-    std::shared_ptr<Order> order = std::make_shared<Order>("Laptop");
+    std::shared_ptr<Customer> customer = std::make_shared<Customer>("anh A");
+    std::shared_ptr<Order> order = std::make_shared<Order>("Bike");
     
     // Thiết lập mối quan hệ giữa Customer và Order
     customer->setOrder(order);
