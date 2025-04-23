@@ -1,50 +1,87 @@
-// Viết một chương trình đơn giản tạo ra hai lớp Customer và Order. 
-// Customer chứa thông tin về khách hàng và một shared_ptr đến Order.
-// Order sẽ chứa một weak_ptr đến Customer.
+#include <iostream>  
+#include <memory>  
+#include <string>  
 
-#include <iostream>
-#include <memory>
-#include <string>
+class Order; // Chỉ định trước lớp Order để có thể sử dụng trong lớp Customer  
 
-class Order; // Khai báo lớp Order
+// Khai báo lớp Customer  
+class Customer : public std::enable_shared_from_this<Customer> {  
+public:  
+    // Constructor nhận tên khách hàng  
+    Customer(const std::string& name)  
+        : name_(name) {}  
 
-class Customer {
-public:
-    Customer(const std::string& name) : name(name) {
-        std::cout << "Customer " << name << " được khởi tạo.\n";
-    }
-    ~Customer() {
-        std::cout << "Customer " << name << " bị hủy.\n";
-    }
-    void setOrder(std::shared_ptr<Order> order) {
-        this->order = order; // Lưu trữ shared_ptr đến Order
-    }
+    // Phương thức tạo Order và lưu trữ nó vào shared_ptr  
+    void createOrder();  
+
+    // Phương thức in tên khách hàng  
+    std::string getName() const {  
+        return name_;  
+    }  
+
+    // Phương thức in thông tin order  
+    void printOrder();  
+
+private:  
+    std::string name_;  
+    std::shared_ptr<Order> order_; // Shared pointer đến Order  
+};  
+
+// Khai báo lớp Order  
+class Order {  
+public:  
+    // Constructor nhận một weak_ptr đến Customer  
+    Order(std::weak_ptr<Customer> customer)  
+        : customer_(customer) {}  
+
+    // Phương thức in thông tin Order  
+    void printOrder() {  
+        if (auto customer = customer_.lock()) { // Sử dụng lock để kiểm tra xem Customer còn tồn tại không  
+            std::cout << "Order for customer: " << customer->getName() << std::endl;  
+        } else {  
+            std::cout << "Customer no longer exists." << std::endl;  
+        }  
+    }  
+
+private:  
+    std::weak_ptr<Customer> customer_;  
+};  
+
+// Triển khai phương thức createOrder  
+void Customer::createOrder() {  
+    order_ = std::make_shared<Order>(shared_from_this());  
+}  
+
+// Triển khai phương thức printOrder  
+void Customer::printOrder() {  
+    if (order_) {  
+        order_->printOrder();  
+    } else {  
+        std::cout << "No order created for " << name_ << std::endl;  
+    }  
+}  
+
+int main() {  
+    // Tạo một đối tượng Customer  
+    auto customer = std::make_shared<Customer>("John Doe");  
     
-private:
-    std::string name;
-    std::shared_ptr<Order> order; // shared_ptr đến Order
-};
+    // Tạo một Order cho Customer  
+    customer->createOrder();  
+    
+    // In thông tin Order  
+    customer->printOrder();  
 
-class Order {
-public:
-    Order(double amount) : amount(amount) {
-        std::cout << "Order trị giá " << amount << " được khởi tạo.\n";
-    }
-    ~Order() {
-        std::cout << "Order trị giá " << amount << " bị hủy.\n";
-    }
-    
-private:
-    double amount;
-};
+    // Giải phóng Customer  
+    customer.reset();  
 
-int main() {
-    // Tạo đối tượng Customer và Order
-    std::shared_ptr<Customer> customer = std::make_shared<Customer>("Nguyen Van A");
-    std::shared_ptr<Order> order = std::make_shared<Order>(150.0);
-    
-    // Kết nối customer và order
-    customer->setOrder(order);
-    
-    return 0;
-}
+    // Kiểm tra lại  
+    std::cout << "After customer reset:" << std::endl;  
+    // Không gọi phương thức nếu customer đã reset  
+    if (customer) {  
+        customer->printOrder();  
+    } else {  
+        std::cout << "Customer has been reset." << std::endl;  
+    }  
+
+    return 0;  
+}  
