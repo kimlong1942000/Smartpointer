@@ -30,14 +30,14 @@ public:
         }
     }
 
-    void print() const {
-        Node* current = head.get();
-        while (current) {
-            std::cout << current->data << " ";
-            current = current->next.get();
-        }
-        std::cout << std::endl;
-    }
+    void print() const {  
+        std::unique_ptr<Node>* current = &head;  
+        while (*current) {  
+            std::cout << (*current)->data << " ";  
+            current = &((*current)->next);  
+        }  
+        std::cout << std::endl;  
+    }  
 };
 
 int main() {
