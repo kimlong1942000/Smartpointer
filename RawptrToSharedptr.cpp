@@ -38,19 +38,6 @@ public:
         }
         return *this;
     }
-
-    // Gán move
-    SharedPointer& operator=(SharedPointer&& other) noexcept {
-        if (this != &other) {
-            release();  // Giải phóng tài nguyên hiện tại
-            ptr_ = other.ptr_;          // Gán lại con trỏ
-            ref_count_ = other.ref_count_; // Gán lại đếm tham chiếu
-            other.ptr_ = nullptr;       // Nullify để tránh giải phóng
-            other.ref_count_ = nullptr; // Nullify để tránh giải phóng
-        }
-        return *this;
-    }
-
     // Overload dereference operator
     T& operator*() const {
         return *ptr_;
@@ -66,6 +53,11 @@ public:
         return *ref_count_;
     }
 
+    // Phương thức để kiểm tra hợp lệ của con trỏ
+    bool isNull() const {
+        return ptr_ == nullptr;
+    }
+
 private:
     void release() {
         if (ref_count_ && --(*ref_count_) == 0) { // Giảm đếm và kiểm tra
@@ -79,22 +71,15 @@ private:
 };
 
 // Example usage
-class Test {
-public:
-    void display() {
-        std::cout << "Hello from Test!" << std::endl;
-    }
-};
 
 int main() {
-    SharedPointer<Test> sp1(new Test()); // Tạo đối tượng SharedPointer
-    {
-        SharedPointer<Test> sp2 = sp1; // Chia sẻ đối tượng
-        std::cout << "Reference count: " << sp1.use_count() << std::endl; // Đếm tham chiếu
-        sp2->display(); // Sử dụng đối tượng
-    } // sp2 ra khỏi phạm vi, đếm tham chiếu giảm
+    SharedPointer<int> sp1(nullptr); // Tạo đối tượng SharedPointer
 
-    std::cout << "Reference count after sp2 out of scope: " << sp1.use_count() << std::endl; // Đếm tham chiếu
+    if (sp1.isNull()) {  // Kiểm tra nếu con trỏ là nullptr
+        std::cout << "SharedPointer is nullptr" << std::endl;
+    } else {
+        std::cout << *sp1 << std::endl;  // Không có nguy cơ dereferencing nullptr
+    }
 
     return 0;
 }
